@@ -276,3 +276,33 @@ textarea.big { min-height: 50vh; font-size: 18px; padding: 16px }
 .mmv-leaves > li::before { content: ''; position: absolute; left: -16px; top: 24px; width: 14px; height: 2.5px; background: var(--accent) }
 .mmv-leaves .mm-leaf { animation: none }
 @keyframes grow { from { transform: scaleY(0) } to { transform: scaleY(1) } }
+
+/* ---------- life wheel ---------- */
+.top { display: grid; gap: 18px 32px; align-items: center; grid-template-columns: minmax(0, 1fr) }
+@media (min-width: 820px) { .top { grid-template-columns: minmax(0, 1fr) minmax(300px, 400px) } }
+.top-text { display: grid; gap: 8px; min-width: 0 }
+.top-text h1 { font-size: clamp(32px, 6vw, 52px); line-height: 1.1 }
+.top-text .quick { margin-top: 8px }
+.wheel { position: relative; width: min(100%, 400px); aspect-ratio: 1; justify-self: center }
+.wheel svg { width: 100%; height: 100%; display: block; overflow: visible; filter: drop-shadow(0 10px 22px rgba(214, 58, 128, .16)) }
+.wheel-spin { animation: spin 90s linear infinite; transform-origin: 0 0 }
+.wheel-icon { animation: spin 90s linear infinite reverse; transform-box: fill-box; transform-origin: center; color: var(--accent-deep) }
+.wheel:hover .wheel-spin, .wheel:hover .wheel-icon, .wheel:focus-within .wheel-spin, .wheel:focus-within .wheel-icon { animation-play-state: paused }
+@keyframes spin { to { transform: rotate(360deg) } }
+.slice { cursor: pointer; outline: none }
+.slice .base { fill: #fff; stroke: var(--line); stroke-width: 1 }
+.slice .base.alt { fill: #fff7fb }
+.slice .fill { fill: var(--l2); opacity: .9 }
+.slice:hover .base, .slice.on .base { fill: var(--faint); stroke: var(--accent) }
+.slice.on .fill, .slice:hover .fill { fill: var(--accent) }
+.slice:focus-visible .base { stroke: var(--fg); stroke-width: 2 }
+.wheel-center {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 31%; aspect-ratio: 1; border-radius: 50%;
+  background: linear-gradient(135deg, #ff86b8, #ff5fa2 55%, #ea4a90); color: #fff; display: grid; place-content: center; text-align: center;
+  padding: 8px; box-shadow: 0 8px 20px rgba(214, 58, 128, .3); pointer-events: none; gap: 1px
+}
+.wheel-center b { font: 600 clamp(14px, 3.6vw, 17px)/1.1 var(--display) }
+.wheel-center span { font-size: 11px; font-weight: 700; line-height: 1.2 }
+.wheel-center .q { opacity: .9; font-weight: 600 }
+.wheel-label { font: 700 10.5px/1 var(--body); fill: var(--fg) }
+.slice.on .wheel-label, .slice:hover .wheel-label { fill: var(--accent-deep) }
