@@ -15,11 +15,11 @@ export function StudyNudge() {
   const now = new Date()
   const hm = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
   const [snoozed, setSnoozed] = useState(() => localStorage.getItem('moxphere:snooze') === d)
-  if (!r.on || hm < r.time || logsFor('study', d).length || snoozed) return null
+  if (!r.on || hm < r.time || logsFor('learning', d).length || snoozed) return null
   return (
     <div className="nudge" role="status">
       <strong>Time to study</strong>
-      <a className="btn primary" href="#study">Open study</a>
+      <a className="btn primary" href="#home/learning">Open learning</a>
       <button className="btn" onClick={() => { localStorage.setItem('moxphere:snooze', d); setSnoozed(true) }}>Later</button>
     </div>
   )

@@ -1,12 +1,12 @@
 import { useSyncExternalStore } from 'react'
 import { update } from './store'
-import { D, K, type AreaId } from './model'
+import { D, K } from './model'
 import { dkey, uid } from './date'
 import { trackName } from './stats'
 
 export const BREAK = 5
 export interface Timer {
-  area: AreaId
+  area: string
   track: string
   mode: 'focus' | 'break'
   dur: number
@@ -14,7 +14,7 @@ export interface Timer {
   left: number | null
 }
 const LT = 'moxphere:timer'
-let T: Timer = { area: 'study', track: 'drugs', mode: 'focus', dur: 25, endsAt: null, left: null }
+let T: Timer = { area: 'learning', track: 'ptx', mode: 'focus', dur: 25, endsAt: null, left: null }
 try {
   T = { ...T, ...JSON.parse(localStorage.getItem(LT) || '{}') }
 } catch {}

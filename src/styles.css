@@ -216,3 +216,63 @@ textarea.big { min-height: 50vh; font-size: 18px; padding: 16px }
 .stage i.on { background: var(--accent) }
 
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important } }
+
+/* ---------- home: quick actions + mind map ---------- */
+.quick { display: flex; flex-wrap: wrap; gap: 8px }
+.mm-root {
+  display: inline-grid; place-items: center; text-align: center; color: #fff; font: 600 22px/1.1 var(--display);
+  background: linear-gradient(135deg, #ff86b8, #ff5fa2 55%, #ea4a90); padding: 20px 26px; border-radius: 999px;
+  box-shadow: 0 10px 26px rgba(214, 58, 128, .28); position: relative; z-index: 1;
+}
+.mm-branch {
+  display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; cursor: pointer; position: relative; z-index: 1;
+  background: #fff; border: 1.5px solid var(--line); border-radius: 16px; padding: 8px 12px; color: var(--fg);
+  transition: background .15s, border-color .15s, transform .15s;
+}
+.mm-branch:hover { border-color: var(--accent); transform: translateX(2px) }
+.mm-branch .ic { flex: none; width: 34px; height: 34px; border-radius: 11px; background: var(--faint); color: var(--accent-deep); display: grid; place-items: center }
+.mm-branch .txt { display: grid; min-width: 0; flex: 1 }
+.mm-branch b { font: 600 16px/1.2 var(--display) }
+.mm-branch small { font-size: 12px; color: var(--dim); font-weight: 600 }
+.mm-branch.on { background: var(--accent); border-color: var(--accent); color: #fff }
+.mm-branch.on .ic { background: rgba(255, 255, 255, .25); color: #fff }
+.mm-branch.on small { color: #fff }
+.mm-branch.on .flag { background: rgba(255, 255, 255, .25); color: #fff }
+.mm-leaf {
+  display: inline-flex; align-items: center; gap: 6px; position: relative; z-index: 1; text-decoration: none; cursor: pointer;
+  background: #fff; border: 1.5px solid var(--l1); border-radius: 999px; padding: 9px 16px; font-weight: 700; color: var(--fg);
+  animation: pop .35s cubic-bezier(.2, .9, .3, 1.3) both; animation-delay: calc(var(--i, 0) * 45ms);
+}
+.mm-leaf:hover { background: var(--faint); border-color: var(--accent) }
+.mm-leaf.add { background: transparent; border-style: dashed; color: var(--accent-deep); font: inherit; font-weight: 700 }
+.mm-leaf.add.editing { padding: 4px 4px 4px 12px; gap: 4px; background: #fff; border-style: solid }
+.mm-leaf.add.editing input { border: 0; padding: 4px 0; width: 160px; background: none }
+@keyframes pop { from { opacity: 0; transform: translateX(-12px) scale(.9) } to { opacity: 1; transform: none } }
+@keyframes draw { from { stroke-dashoffset: 1 } to { stroke-dashoffset: 0 } }
+
+/* laptop: three columns joined by curves */
+.mm {
+  position: relative; display: grid; grid-template-columns: 150px minmax(230px, 290px) minmax(0, 1fr); column-gap: 72px; align-items: center;
+  background: var(--card); border-radius: 28px; padding: 28px; box-shadow: var(--shadow); min-height: 560px;
+}
+.mm-col { display: flex; flex-direction: column; gap: 8px; min-width: 0 }
+.mm-rootcol { align-items: center }
+.mm-leaves { align-items: flex-start; gap: 10px }
+.mm-hint { color: var(--mute); font-weight: 600 }
+.mm-lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible }
+.mm-lines path { fill: none; stroke: var(--l1); stroke-width: 2; stroke-linecap: round }
+.mm-lines path.hot { stroke: var(--accent); stroke-width: 2.5; stroke-dasharray: 1; animation: draw .45s ease-out both }
+
+/* phone: a tree that folds out */
+.mmv { background: var(--card); border-radius: 24px; padding: 20px 16px; box-shadow: var(--shadow) }
+.mmv > .mm-root { margin: 0 auto 10px; display: flex; width: fit-content; padding: 14px 24px; font-size: 20px }
+.mmv-trunk, .mmv-leaves { list-style: none; margin: 0; padding: 0 0 0 20px; position: relative }
+.mmv-trunk::before { content: ''; position: absolute; left: 8px; top: 0; bottom: 30px; width: 2px; background: var(--l1); border-radius: 2px }
+.mmv-trunk > li { position: relative; padding: 5px 0 }
+.mmv-trunk > li::before { content: ''; position: absolute; left: -12px; top: 30px; width: 12px; height: 2px; background: var(--l1) }
+.mmv-leaves { margin: 8px 0 6px 14px; padding-left: 22px }
+.mmv-leaves::before { content: ''; position: absolute; left: 6px; top: -8px; bottom: 22px; width: 2.5px; background: var(--accent); border-radius: 2px; animation: grow .3s ease-out both; transform-origin: top }
+.mmv-leaves > li { position: relative; padding: 4px 0; animation: pop .35s cubic-bezier(.2, .9, .3, 1.3) both; animation-delay: calc(var(--i, 0) * 45ms) }
+.mmv-leaves > li::before { content: ''; position: absolute; left: -16px; top: 24px; width: 14px; height: 2.5px; background: var(--accent) }
+.mmv-leaves .mm-leaf { animation: none }
+@keyframes grow { from { transform: scaleY(0) } to { transform: scaleY(1) } }

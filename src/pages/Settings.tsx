@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { D, K, type PlanItem } from '../lib/model'
+import { D, DEFAULT_CONFIG, K, type PlanItem } from '../lib/model'
 import { today, uid } from '../lib/date'
-import { dumpAll, importDocs, get, pendingCount, update, useStore } from '../lib/store'
+import { dumpAll, importDocs, get, pendingCount, update, useDoc, useStore } from '../lib/store'
 import { clearSyncConfig, saveSyncConfig, signIn, signOut, signUp, syncConfig, syncNow, useSync } from '../lib/sync'
 import { PH, Sec, toast } from '../ui/bits'
 
@@ -13,6 +13,7 @@ export default function Settings() {
       <div className="cols even">
         <SyncBox />
         <div className="stack">
+          <Reminder />
           <Backup />
           <Sec title="Install on your phone">
             <p>Android (Chrome): open Moxphere, tap the ⋮ menu, then <b>Add to Home screen</b> or <b>Install app</b>.</p>
@@ -89,6 +90,22 @@ function SyncBox() {
       )}
       {msg && <p role="alert">{msg}</p>}
       {cfg && !cfg.fromEnv && <button className="link" style={{ justifySelf: 'start' }} onClick={clearSyncConfig}>Change sync project</button>}
+    </Sec>
+  )
+}
+
+function Reminder() {
+  const [cfg, setCfg] = useDoc(K.config, DEFAULT_CONFIG)
+  const r = { ...DEFAULT_CONFIG.reminder, ...cfg.reminder }
+  return (
+    <Sec title="Study reminder" sub="Shows on Home if you haven't logged any learning by this time">
+      <div className="row">
+        <label className="row" style={{ gap: 8 }}>
+          <input type="checkbox" checked={r.on} style={{ accentColor: 'var(--accent)', width: 18, height: 18 }} onChange={e => setCfg(c => { c.reminder = { ...r, on: e.target.checked } })} />
+          Remind me at
+        </label>
+        <input type="time" value={r.time} style={{ width: 'auto' }} aria-label="Reminder time" onChange={e => setCfg(c => { c.reminder = { ...r, time: e.target.value || '19:00' } })} />
+      </div>
     </Sec>
   )
 }

@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { AREAS, D, K } from '../lib/model'
+import { D, K } from '../lib/model'
 import { lastDays, mins, nice, today } from '../lib/date'
 import { get, useDoc, useStore } from '../lib/store'
-import { score, streak } from '../lib/stats'
+import { score, streakOf } from '../lib/stats'
 import { DateNav, DayCols, Heat, PH, Sec, Seg, Stepper, Tiles } from '../ui/bits'
 import { Habits, LogList, openLog } from '../ui/logs'
 
@@ -23,12 +23,12 @@ export default function Health() {
   const scale = [1, 2, 3, 4, 5].map(v => ({ v, t: String(v) }))
   return (
     <div className="stack">
-      <PH title="Health" sub={AREAS[0].sub} right={<button className="btn primary" onClick={() => openLog({ area: 'health', track: 'exercise', date })}>Log exercise</button>} />
+      <PH title="Health" sub="Sleep, water, movement, mood and energy" right={<button className="btn primary" onClick={() => openLog({ area: 'health', track: 'exercise', date })}>Log exercise</button>} />
       <Tiles four items={[
         { label: 'Sleep, 7 day avg', value: sleep == null ? '–' : `${sleep.toFixed(1)}h` },
         { label: 'Water, 7 day avg', value: water == null ? '–' : `${water.toFixed(1)}` , sub: 'glasses' },
         { label: 'Moved, 7 days', value: mins(move) },
-        { label: 'Streak', value: `${streak('health')}d`, sub: 'days with a check-in' },
+        { label: 'Streak', value: `${streakOf(d => score('health', d))}d`, sub: 'days with a check-in' },
       ]} />
       <div className="cols">
         <div className="stack">
@@ -41,7 +41,7 @@ export default function Health() {
             <div className="row between"><span>Energy</span><Seg label="Energy" value={hd.energy} options={scale} onChange={v => setH(x => { x.energy = v })} /></div>
             <p className="small mute">1 is low, 5 is great.</p>
           </Sec>
-          <Sec title="Daily habits"><Habits area="health" date={date} /></Sec>
+          <Sec title="Daily habits"><Habits scope="checkin" date={date} /></Sec>
           <Sec title="Exercise log"><LogList area="health" days={lastDays(60)} empty="No exercise logged in the last 60 days." /></Sec>
         </div>
         <div className="stack">

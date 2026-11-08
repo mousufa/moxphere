@@ -1,12 +1,12 @@
 import { useState, useSyncExternalStore } from 'react'
-import { AREAS, D, DEFAULT_CONFIG, K, areaName, type AreaId } from '../lib/model'
+import { D, DEFAULT_CONFIG, K, LOGGABLE } from '../lib/model'
 import { mins, nice, today, uid } from '../lib/date'
 import { update, useDoc, useStore } from '../lib/store'
-import { config, logsFor, trackName, tracksOf } from '../lib/stats'
+import { branch, branches, config, leafName, logsOn } from '../lib/stats'
 import { Check, toast } from './bits'
 
 /* ---------- log dialog (opened from anywhere) ---------- */
-interface Open { area: AreaId; track?: string; date?: string; note?: string }
+interface Open { area: string; track?: string; date?: string; note?: string; who?: string }
 let open: Open | null = null
 const L = new Set<() => void>()
 export function openLog(o: Open) {
@@ -17,15 +17,8 @@ const close = () => {
   open = null
   L.forEach(l => l())
 }
-
-const PROMPT: Record<AreaId, string> = {
-  health: 'What did you do?',
-  study: 'What did you learn or revise?',
-  social: 'What happened? What did you do well?',
-  akhira: 'What did you do?',
-  selfcare: 'Where did you go, what did you make or eat?',
-  hustles: 'What did you work on?',
-}
+const loggableBranches = () => branches().filter(b => b.leaves.some(l => LOGGABLE.includes(l.kind)))
+const loggableLeaves = (b: string) => (branch(b)?.leaves ?? []).filter(l => LOGGABLE.includes(l.kind))
 
 export function LogDialog() {
   const o = useSyncExternalStore(
@@ -43,46 +36,41 @@ export function LogDialog() {
 
 function LogForm({ o }: { o: Open }) {
   useStore()
-  const [area, setArea] = useState<AreaId>(o.area)
-  const tracks = tracksOf(area)
-  const [track, setTrack] = useState(o.track ?? tracks[0]?.id ?? '')
+  const [area, setArea] = useState(loggableBranches().some(b => b.id === o.area) ? o.area : 'learning')
+  const leaves = loggableLeaves(area)
+  const [track, setTrack] = useState(o.track && leaves.some(l => l.id === o.track) ? o.track : leaves[0]?.id ?? '')
   const [date, setDate] = useState(o.date ?? today())
   const [m, setM] = useState('')
   const [note, setNote] = useState(o.note ?? '')
-  const timed = area === 'study' || area === 'hustles'
+  const timed = ['learning', 'project', 'building', 'research', 'career'].includes(area)
   const save = (e: React.FormEvent) => {
     e.preventDefault()
     const minutes = Math.max(0, Math.round(Number(m) || 0))
-    if (timed && !minutes && !note.trim()) return toast('Add the minutes or a note.')
+    if (!minutes && !note.trim()) return toast('Add the minutes or a note.')
     update(K.logs(date), D.logs, l => {
-      l.items.push({ id: uid(), area, track: track || 'general', mins: minutes, note: note.trim() })
+      l.items.push({ id: uid(), area, track: track || 'general', mins: minutes, note: note.trim(), ...(o.who ? { who: o.who } : {}) })
     })
-    toast(`Logged in ${areaName(area)}.`)
+    toast(`Logged in ${leafName(track)}.`)
     close()
   }
   return (
     <div className="overlay" onMouseDown={e => e.target === e.currentTarget && close()}>
-      <form className="dialog" onSubmit={save} role="dialog" aria-modal="true" aria-labelledby="logTitle"
-        onKeyDown={e => e.key === 'Escape' && close()}>
+      <form className="dialog" onSubmit={save} role="dialog" aria-modal="true" aria-labelledby="logTitle" onKeyDown={e => e.key === 'Escape' && close()}>
         <h2 id="logTitle">Log it</h2>
-        <label className="field">
-          <span className="label">Area</span>
-          <select value={area} onChange={e => {
-            const a = e.target.value as AreaId
-            setArea(a)
-            setTrack(tracksOf(a)[0]?.id ?? '')
-          }}>
-            {AREAS.filter(a => a.id !== 'akhira').map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
-          </select>
-        </label>
-        {tracks.length > 0 && (
+        <div className="form">
+          <label className="field">
+            <span className="label">Branch</span>
+            <select value={area} onChange={e => { setArea(e.target.value); setTrack(loggableLeaves(e.target.value)[0]?.id ?? '') }}>
+              {loggableBranches().map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
+            </select>
+          </label>
           <label className="field">
             <span className="label">Which part</span>
             <select value={track} onChange={e => setTrack(e.target.value)}>
-              {tracks.map(t => <option key={t.id} value={t.id}>{t.group ? `${t.group} · ` : ''}{t.name}</option>)}
+              {leaves.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
             </select>
           </label>
-        )}
+        </div>
         <div className="form">
           <label className="field">
             <span className="label">Minutes{timed ? '' : ' (optional)'}</span>
@@ -95,7 +83,7 @@ function LogForm({ o }: { o: Open }) {
         </div>
         <label className="field">
           <span className="label">Note</span>
-          <textarea value={note} onChange={e => setNote(e.target.value)} placeholder={PROMPT[area]} style={{ minHeight: 80 }} autoFocus={!timed} />
+          <textarea value={note} onChange={e => setNote(e.target.value)} placeholder="What did you do?" style={{ minHeight: 80 }} />
         </label>
         <div className="row">
           <button className="btn primary">Save</button>
@@ -107,19 +95,19 @@ function LogForm({ o }: { o: Open }) {
 }
 
 /* ---------- list of logs ---------- */
-export function LogList({ area, days, track, empty }: { area: AreaId; days: string[]; track?: string; empty?: string }) {
+export function LogList({ area, days, track, empty }: { area?: string; days: string[]; track?: string; empty?: string }) {
   useStore()
-  const rows = days.flatMap(d => logsFor(area, d, track).map(l => ({ ...l, d }))).reverse()
+  const rows = days.flatMap(d => logsOn(d).filter(l => (!area || l.area === area) && (!track || l.track === track)).map(l => ({ ...l, d }))).reverse()
   if (!rows.length) return <p className="empty">{empty ?? 'Nothing logged yet.'}</p>
   return (
     <ul className="list">
       {rows.slice(0, 40).map(l => (
         <li key={l.id}>
           <div style={{ padding: '8px 0' }}>
-            <div className="row small">
-              <span className="mono dim">{nice(l.d)}</span>
-              <span>{trackName(l.track)}</span>
-              {l.mins > 0 && <span className="mono dim">{mins(l.mins)}</span>}
+            <div className="row small" style={{ gap: 8 }}>
+              <span className="dim">{nice(l.d)}</span>
+              {!track && <span style={{ fontWeight: 600 }}>{leafName(l.track)}</span>}
+              {l.mins > 0 && <span className="dim">{mins(l.mins)}</span>}
             </div>
             {l.note && <p style={{ overflowWrap: 'anywhere' }}>{l.note}</p>}
           </div>
@@ -133,13 +121,13 @@ export function LogList({ area, days, track, empty }: { area: AreaId; days: stri
   )
 }
 
-/* ---------- daily habits for an area ---------- */
-export function Habits({ area, date }: { area: AreaId; date: string }) {
+/* ---------- daily habits for any part of the map ---------- */
+export function Habits({ scope, date, placeholder = 'Add a daily habit' }: { scope: string; date: string; placeholder?: string }) {
   const [done, setDone] = useDoc(K.habits(date), D.habits)
   const [, setCfg] = useDoc(K.config, DEFAULT_CONFIG)
   const [v, setV] = useState('')
   const [confirm, setConfirm] = useState<string | null>(null)
-  const hs = config().habits.filter(h => h.area === area)
+  const hs = config().habits.filter(h => h.area === scope)
   return (
     <div className="sec" style={{ gap: 4 }}>
       {hs.length > 0 && (
@@ -159,10 +147,10 @@ export function Habits({ area, date }: { area: AreaId; date: string }) {
       <form className="row" onSubmit={e => {
         e.preventDefault()
         if (!v.trim()) return
-        setCfg(c => { c.habits = [...config().habits, { id: uid(), area, name: v.trim() }] })
+        setCfg(c => { c.habits = [...config().habits, { id: uid(), area: scope, name: v.trim() }] })
         setV('')
       }}>
-        <input type="text" style={{ flex: 1 }} value={v} onChange={e => setV(e.target.value)} placeholder="Add a daily habit" aria-label="Add a daily habit" maxLength={120} />
+        <input type="text" style={{ flex: 1 }} value={v} onChange={e => setV(e.target.value)} placeholder={placeholder} aria-label={placeholder} maxLength={120} />
         <button className="btn">Add</button>
       </form>
     </div>

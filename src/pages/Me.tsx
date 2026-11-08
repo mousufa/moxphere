@@ -1,4 +1,4 @@
-import { AREAS, D, K } from '../lib/model'
+import { D, K, LIFE } from '../lib/model'
 import { useDoc } from '../lib/store'
 import { ListEditor, PH, Sec } from '../ui/bits'
 
@@ -24,7 +24,7 @@ export default function Me() {
         </div>
         <div className="stack">
           <Sec title="My full-potential version" sub="What the best version of you looks like in each part of life">
-            {AREAS.map(a => (
+            {LIFE.map(a => (
               <label key={a.id} className="field">
                 <span className="label">{a.name}</span>
                 <textarea value={me.vision[a.id] || ''} style={{ minHeight: 80 }}
@@ -40,10 +40,13 @@ export default function Me() {
 }
 
 const PH_TEXT: Record<string, string> = {
+  learning: 'Top marks in my subjects, JRF cleared, comfortable with Python and ML',
+  project: 'A forecasting model I can explain and defend, written up well',
+  building: 'Pinned has steady clients, WhyPharm sells, the channel helps students, tutoring pays well',
+  research: 'Published papers, confident oral presentations, a meta-analysis to my name',
+  career: 'Working in HEOR, CDM, regulatory or clinical research, in a role I chose',
+  akhira: 'Every prayer on time, Quran daily, dhikr and istighfar, in control of my nafs',
+  self: 'Speaks and writes clearly, calm and confident in any room',
+  joy: 'Good people around me, regular trips and food hunts, solo adventures',
   health: 'Sleeping 7 hours, moving every day, steady energy',
-  study: 'Knows drugs cold, clears exams well, working in HEOR or regulatory with Python and ML skills',
-  social: 'Speaks clearly and calmly, keeps good people close',
-  akhira: 'Every prayer on time, Quran daily, far from negativity',
-  selfcare: 'A small trip every month, cooks for fun, makes things',
-  hustles: 'Pinned has steady clients, WhyPharm sells, the channel helps students',
 }
