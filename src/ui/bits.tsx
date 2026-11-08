@@ -158,7 +158,7 @@ export function Heat({ value, label, weeks = 16 }: { value: (d: string) => numbe
       <div className="row between">
         <span className="mono small dim">{read}</span>
         <span className="legend" aria-hidden="true">
-          less <i style={{ background: 'var(--faint)' }} /><i style={{ background: 'var(--l1)' }} /><i style={{ background: 'var(--l2)' }} /><i style={{ background: 'var(--l3)' }} /><i style={{ background: 'var(--fg)' }} /> more
+          less <i style={{ background: 'var(--faint)' }} /><i style={{ background: 'var(--l1)' }} /><i style={{ background: 'var(--l2)' }} /><i style={{ background: 'var(--l3)' }} /><i style={{ background: 'var(--l4)' }} /> more
         </span>
       </div>
     </div>

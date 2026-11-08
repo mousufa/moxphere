@@ -2,11 +2,11 @@ export type AreaId = 'health' | 'study' | 'social' | 'akhira' | 'selfcare' | 'hu
 
 export const AREAS: { id: AreaId; name: string; sub: string }[] = [
   { id: 'health', name: 'Health', sub: 'Sleep, water, movement, mood and energy' },
-  { id: 'study', name: 'Korach padikkam', sub: 'Pharma core, career learning and tech' },
+  { id: 'study', name: 'Study', sub: 'Pharma core, career learning and tech' },
   { id: 'social', name: 'Social self', sub: 'Communication, people and confidence' },
   { id: 'akhira', name: 'Akhira', sub: 'Prayer, Quran, dhikr and distance from negativity' },
   { id: 'selfcare', name: 'Self care', sub: 'Trips, cooking, food hunts and making things' },
-  { id: 'hustles', name: 'Baa pani edukkam', sub: 'Pinned, WhyPharm and the WhyPharm channel' },
+  { id: 'hustles', name: 'Side hustles', sub: 'Pinned, WhyPharm and the WhyPharm channel' },
 ]
 export const areaName = (id: string) => AREAS.find(a => a.id === id)?.name ?? id
 

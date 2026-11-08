@@ -18,7 +18,7 @@ export default function Hustles() {
   const week = weekDays(t).filter(d => d <= t)
   return (
     <div className="stack">
-      <PH title="Baa pani edukkam" sub="Pinned, WhyPharm and the WhyPharm channel"
+      <PH title="Side hustles" sub="Pinned, WhyPharm and the WhyPharm channel"
         right={<button className="btn primary" onClick={() => openLog({ area: 'hustles', track: cur?.id })}>Log work</button>} />
       <Tiles four items={[
         { label: 'This week', value: mins(sumDays(week, d => minutes('hustles', d))) },
@@ -43,7 +43,7 @@ function HustleView({ h }: { h: Track }) {
     <div className="stack">
       <div className="row between">
         <div>
-          <h2 style={{ font: '400 34px/1.1 var(--display)' }}>{h.name}</h2>
+          <h2 style={{ font: '600 30px/1.1 var(--display)' }}>{h.name}</h2>
           <p className="dim">{KIND[h.kind ?? 'other']}</p>
         </div>
         <Tiles items={[

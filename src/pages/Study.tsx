@@ -19,7 +19,7 @@ export default function Study() {
   const max = Math.max(30, ...tracks.map(tr => sumDays(week, d => minutes('study', d, tr.id))))
   return (
     <div className="stack">
-      <PH title="Korach padikkam" sub="Pharma core, non-clinical career learning and tech" right={
+      <PH title="Study" sub="Pharma core, non-clinical career learning and tech" right={
         <div className="row">
           <button className="btn primary" onClick={() => openLog({ area: 'study' })}>Log study</button>
           <a className="btn" href="#focus">Focus</a>
@@ -128,9 +128,9 @@ function Reminder() {
   const r = { ...DEFAULT_CONFIG.reminder, ...cfg.reminder }
   return (
     <div className="box row">
-      <strong className="grow" style={{ font: '400 22px/1.2 var(--display)' }}>Baa korach padikkam</strong>
+      <strong className="grow" style={{ font: '500 20px/1.2 var(--display)' }}>Study reminder</strong>
       <label className="row small dim" style={{ gap: 6 }}>
-        <input type="checkbox" checked={r.on} onChange={e => setCfg(c => { c.reminder = { ...r, on: e.target.checked } })} style={{ accentColor: '#fff' }} /> Remind me at
+        <input type="checkbox" checked={r.on} onChange={e => setCfg(c => { c.reminder = { ...r, on: e.target.checked } })} style={{ accentColor: 'var(--accent)' }} /> Remind me at
       </label>
       <input type="time" value={r.time} style={{ width: 'auto' }} aria-label="Reminder time" onChange={e => setCfg(c => { c.reminder = { ...r, time: e.target.value || '19:00' } })} />
       <p className="small mute" style={{ width: '100%' }}>Shows on Today if you haven't logged study by then.</p>

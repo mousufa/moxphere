@@ -127,8 +127,8 @@ function finish() {
     onToast(msg)
     void notify('Focus session done', msg)
   } else {
-    onToast('Break over. Baa, thudangaam.')
-    void notify('Break over', 'Baa, thudangaam.')
+    onToast('Break over. Back to it!')
+    void notify('Break over', 'Back to it!')
   }
 }
 setInterval(() => {

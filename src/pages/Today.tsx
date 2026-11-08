@@ -2,50 +2,48 @@ import { useState } from 'react'
 import { D, K, PRAYERS, type PrayerState } from '../lib/model'
 import { longDate, mins, today, uid } from '../lib/date'
 import { useDoc, useStore } from '../lib/store'
-import { balance, config, drainMins, focusMins, logsFor } from '../lib/stats'
-import { Bars, PH, Sec, Seg, Stepper, Tiles, useToday } from '../ui/bits'
+import { config, drainMins, focusMins, logsFor } from '../lib/stats'
+import { PH, Sec, Seg, Stepper, Tiles, useToday } from '../ui/bits'
 import { Plan } from '../ui/plan'
 import { openLog } from '../ui/logs'
+
+/** Shows after the reminder time if nothing has been studied today. */
+export function StudyNudge() {
+  useStore()
+  const d = useToday()
+  const r = config().reminder
+  const now = new Date()
+  const hm = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
+  const [snoozed, setSnoozed] = useState(() => localStorage.getItem('moxphere:snooze') === d)
+  if (!r.on || hm < r.time || logsFor('study', d).length || snoozed) return null
+  return (
+    <div className="nudge" role="status">
+      <strong>Time to study</strong>
+      <a className="btn primary" href="#study">Open study</a>
+      <button className="btn" onClick={() => { localStorage.setItem('moxphere:snooze', d); setSnoozed(true) }}>Later</button>
+    </div>
+  )
+}
 
 export default function Today() {
   useStore()
   const d = useToday()
   const [health, setHealth] = useDoc(K.health(d), D.health)
   const [ak, setAk] = useDoc(K.akhira(d), D.akhira)
-  const bal = balance(d)
-  const r = config().reminder
-  const now = new Date()
-  const hm = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
-  const [snoozed, setSnoozed] = useState(() => localStorage.getItem('moxphere:snooze') === d)
-  const studyDue = r.on && hm >= r.time && !logsFor('study', d).length && !snoozed
-
   return (
     <div className="stack">
-      <PH title="Baa plan cheyyam" sub={longDate(d)} right={
+      <PH title="Today's plan" sub={longDate(d)} right={
         <div className="row">
           <button className="btn primary" onClick={() => openLog({ area: 'study' })}>Log it</button>
           <a className="btn" href="#focus">Focus</a>
         </div>
       } />
-      {studyDue && (
-        <div className="nudge" role="status">
-          <strong>Baa korach padikkam</strong>
-          <a className="btn primary" href="#study">Open study</a>
-          <button className="btn" onClick={() => { localStorage.setItem('moxphere:snooze', d); setSnoozed(true) }}>Later</button>
-        </div>
-      )}
+      <StudyNudge />
       <div className="cols">
         <div className="stack">
           <Sec title="Hour by hour"><Plan date={d} /></Sec>
         </div>
-        <div className="stack first-on-phone">
-          <Sec title="This week" sub="Days you looked after each part of your life">
-            <Bars rows={bal.map(a => ({
-              key: a.id, name: a.name, v: a.active, max: 7, href: '#' + a.id,
-              val: `${a.active}/${a.days} days`,
-              flag: a.since == null ? 'Not started' : a.since >= 4 ? `${a.since} days ago` : undefined,
-            }))} />
-          </Sec>
+        <div className="stack">
           <Tiles items={[
             { label: 'Focused today', value: mins(focusMins(d)) },
             { label: 'Drained today', value: mins(drainMins(d)), sub: 'Time on zero-return things' },
